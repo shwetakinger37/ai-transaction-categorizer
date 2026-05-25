@@ -1,12 +1,3 @@
-"""
-context_builder.py — Constructs the structured prompt sent to the LLM.
-
-Responsibilities:
-  - Format historical examples as few-shot context
-  - Embed the Chart of Accounts as the constrained label set
-  - Inject industry context
-  - Produce a deterministic system prompt + user prompt pair
-"""
 from __future__ import annotations
 
 from typing import List
