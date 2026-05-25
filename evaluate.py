@@ -1,16 +1,3 @@
-"""
-evaluate.py — Simple evaluation script.
-
-Metrics:
-  - Top-1 category match (exact match against expected category)
-  - Confidence score distribution
-  - Per-sample pass/fail summary
-
-Usage:
-  python evaluate.py
-
-Requires LLM_API_KEY to be set in .env or environment.
-"""
 from __future__ import annotations
 
 import os
