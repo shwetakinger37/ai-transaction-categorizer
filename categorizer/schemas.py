@@ -1,15 +1,8 @@
-"""
-schemas.py — Deterministic JSON contract for all API inputs and outputs.
-All validation lives here; views stay thin.
-"""
+
 from __future__ import annotations
 from typing import List, Optional
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
-
-# ──────────────────────────────────────────────
-# Inbound schemas
-# ──────────────────────────────────────────────
 
 class Transaction(BaseModel):
     description: str = Field(..., min_length=1, max_length=500)
@@ -47,9 +40,6 @@ class CategorizationRequest(BaseModel):
         return v[-20:]
 
 
-# ──────────────────────────────────────────────
-# Outbound schemas
-# ──────────────────────────────────────────────
 
 class CategorySuggestion(BaseModel):
     category: str
