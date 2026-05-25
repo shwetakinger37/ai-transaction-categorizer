@@ -1,13 +1,3 @@
-"""
-tools.py — Tool definitions and implementations for the agentic categorization loop.
-
-The LLM agent has access to three tools that let it look up company-specific data
-before making a categorization decision:
-
-  1. lookup_bank_rules       — keyword rules defined by the company's accountants
-  2. lookup_similar_transactions — historical categorized transactions
-  3. get_chart_of_accounts   — full GL account list with codes and groups
-"""
 from __future__ import annotations
 
 import glob
@@ -24,11 +14,7 @@ HEURISTICS_DIR = os.path.join(
     "heuristics",
 )
 
-# Module-level cache — avoids re-reading large files on every agentic tool call.
-_file_cache: Dict[str, Any] = {}
 
-
-# ─── Tool definitions (Anthropic API format) ─────────────────────────────────
 
 TOOL_DEFINITIONS: List[Dict[str, Any]] = [
     {
@@ -103,8 +89,6 @@ TOOL_DEFINITIONS: List[Dict[str, Any]] = [
     },
 ]
 
-
-# ─── Tool implementations ─────────────────────────────────────────────────────
 
 def lookup_bank_rules(company_id: str, description: str) -> str:
     cid = _normalize_cid(company_id)
@@ -229,17 +213,8 @@ def get_chart_of_accounts(company_id: str) -> str:
     header = f"Chart of Accounts ({total} accounts):"
     return header + "\n".join(lines)
 
-
-# ─── Rule engine helpers (used by Tier 1 and Tier 2 enrichment) ──────────────
-# These return structured data / formatted strings for the service layer,
-# not for the LLM — they bypass the tool-call protocol entirely.
-
 def get_matching_rules(company_id: str, description: str) -> List[Dict[str, Any]]:
-    """
-    Returns structured list of active bank rules that match the description.
-    Each entry: {title, matched_keyword, account_ids, rule_category_name}
-    Used by the Tier 1 rule engine — not a tool the LLM calls.
-    """
+   
     cid = _normalize_cid(company_id)
     path = os.path.join(HEURISTICS_DIR, f"c{cid}_BankRules.json")
     if not os.path.exists(path):
@@ -281,11 +256,7 @@ def map_rule_to_coa(
     rule: Dict[str, Any],
     chart_of_accounts: List[str],
 ) -> "tuple[str, float] | None":
-    """
-    Maps a bank rule to the best-matching Chart of Accounts item via word overlap
-    between the rule title and CoA item names.
-    Returns (category, confidence) or None if no meaningful word overlap found.
-    """
+    
     import re
 
     title_words = (
@@ -333,8 +304,6 @@ def build_enrichment_context(
     )
 
 
-# ─── Tool dispatcher ──────────────────────────────────────────────────────────
-
 def execute_tool(name: str, inputs: Dict[str, Any]) -> str:
     """Dispatch a tool call by name and return a string result to feed back to the model."""
     logger.info("Tool call | name=%s inputs=%s", name, list(inputs.keys()))
@@ -350,8 +319,6 @@ def execute_tool(name: str, inputs: Dict[str, Any]) -> str:
         logger.warning("Tool '%s' raised an exception: %s", name, exc)
         return f"Tool error in '{name}': {exc}"
 
-
-# ─── Private helpers ──────────────────────────────────────────────────────────
 
 def _normalize_cid(company_id: str) -> str:
     """'c125', 'C125', '125' → '125'"""
