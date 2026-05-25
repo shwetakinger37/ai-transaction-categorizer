@@ -1,13 +1,3 @@
-"""
-llm_client.py — Model-agnostic LLM abstraction layer.
-
-Adding a new provider: subclass BaseLLMClient, implement `complete()`,
-then register in LLMClientFactory.get().
-
-Agentic tool use is opt-in: providers override `supports_tools()` and
-`complete_agentic()`. Only AnthropicClient currently implements the full
-agentic loop with stop_reason == "end_turn" / "tool_use".
-"""
 from __future__ import annotations
 
 import json
@@ -23,12 +13,10 @@ logger = logging.getLogger(__name__)
 _MAX_AGENTIC_ITERATIONS = 10
 
 
-# ──────────────────────────────────────────────
-# Base contract
-# ──────────────────────────────────────────────
+
 
 class BaseLLMClient(ABC):
-    """All LLM providers must satisfy this interface."""
+    
 
     @abstractmethod
     def complete(self, system_prompt: str, user_prompt: str) -> str:
@@ -66,10 +54,6 @@ class BaseLLMClient(ABC):
     last_tools_used: List[str] = []
 
 
-# ──────────────────────────────────────────────
-# OpenAI (and OpenAI-compatible) provider
-# ──────────────────────────────────────────────
-
 class OpenAIClient(BaseLLMClient):
     def __init__(self) -> None:
         from openai import OpenAI  # lazy import — not a hard dep if unused
@@ -105,25 +89,16 @@ class OpenAIClient(BaseLLMClient):
         return text
 
 
-# ──────────────────────────────────────────────
-# HuggingFace / custom OpenAI-compatible endpoint
-# (reuses OpenAIClient with a custom base_url)
-# ──────────────────────────────────────────────
 
 class HuggingFaceClient(OpenAIClient):
-    """
-    HuggingFace Inference Endpoints expose an OpenAI-compatible API.
-    Set LLM_BASE_URL to your endpoint and LLM_API_KEY to your HF token.
-    """
+
 
     @property
     def provider_name(self) -> str:
         return "huggingface"
 
 
-# ──────────────────────────────────────────────
-# Anthropic provider
-# ──────────────────────────────────────────────
+
 
 class AnthropicClient(BaseLLMClient):
     def __init__(self) -> None:
@@ -164,15 +139,7 @@ class AnthropicClient(BaseLLMClient):
         tools: List[Dict[str, Any]],
         tool_executor: Callable[[str, Dict[str, Any]], str],
     ) -> str:
-        """
-        Agentic loop: the model can call tools repeatedly until it returns
-        stop_reason == "end_turn", at which point we return its final text.
-
-        Loop invariant:
-          - stop_reason == "tool_use"  → execute tools, append results, continue
-          - stop_reason == "end_turn"  → extract text content, return
-          - anything else              → treat as terminal, return whatever text exists
-        """
+        
         self.last_tools_used = []
         messages: List[Dict[str, Any]] = [{"role": "user", "content": user_prompt}]
 
@@ -270,21 +237,14 @@ class LLMClientFactory:
         return client_cls()
 
 
-# ──────────────────────────────────────────────
-# JSON extraction helper (shared utility)
-# ──────────────────────────────────────────────
 
 def extract_json_block(raw: str) -> Dict[str, Any]:
-    """
-    Safely extract a JSON object from an LLM response that may contain
-    markdown fences or surrounding prose.
-    """
-    # Try to find ```json ... ``` block first
+    
     fenced = re.search(r"```(?:json)?\s*(\{.*?\})\s*```", raw, re.DOTALL)
     if fenced:
         return json.loads(fenced.group(1))
 
-    # Fall back to first { ... } in the string
+    
     brace = re.search(r"\{.*\}", raw, re.DOTALL)
     if brace:
         return json.loads(brace.group(0))
