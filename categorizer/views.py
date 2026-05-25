@@ -1,6 +1,3 @@
-"""
-views.py — Thin DRF views. No business logic here.
-"""
 from __future__ import annotations
 
 import logging
@@ -19,11 +16,6 @@ logger = logging.getLogger(__name__)
 
 
 class CategorizeTransactionView(APIView):
-    """
-    POST /api/v1/categorize/
-    Accepts a transaction + company context, returns a categorization suggestion.
-    """
-
     def post(self, request: Request) -> Response:
         # Validate input via Pydantic schema
         try:
@@ -39,7 +31,7 @@ class CategorizeTransactionView(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        # Delegate to service layer
+        
         try:
             result = categorize_transaction(payload)
         except ValueError as exc:
@@ -53,17 +45,11 @@ class CategorizeTransactionView(APIView):
 
 
 class HealthCheckView(APIView):
-    """GET /api/v1/health/ — liveness probe."""
-
     def get(self, request: Request) -> Response:
         return Response({"status": "ok"}, status=status.HTTP_200_OK)
 
 
 class SampleDataView(APIView):
-    """
-    GET /api/v1/samples/
-    Returns mock sample requests useful for manual testing and evaluation.
-    """
 
     def get(self, request: Request) -> Response:
         return Response({"samples": SAMPLE_REQUESTS}, status=status.HTTP_200_OK)
