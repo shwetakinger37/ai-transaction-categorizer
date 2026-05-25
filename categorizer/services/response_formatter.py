@@ -1,12 +1,3 @@
-"""
-response_formatter.py — Parses raw LLM output into a typed CategorizationResponse.
-
-Responsibilities:
-  - Extract JSON from raw LLM text (handles fences, prose wrapping)
-  - Validate that suggested_category is in the Chart of Accounts
-  - Clamp confidence scores to [0.0, 1.0]
-  - Build the final CategorizationResponse object
-"""
 from __future__ import annotations
 
 import logging
@@ -29,10 +20,7 @@ def parse_and_format(
     tools_used: List[str] | None = None,
     tier: int = 2,
 ) -> CategorizationResponse:
-    """
-    Parses raw LLM text → validates → returns CategorizationResponse.
-    Raises ValueError if the output cannot be parsed or the category is invalid.
-    """
+    
     data: Dict[str, Any] = extract_json_block(raw_response)
 
     suggested = _validate_category(
@@ -60,19 +48,13 @@ def parse_and_format(
     )
 
 
-# ──────────────────────────────────────────────
-# Private helpers
-# ──────────────────────────────────────────────
-
 def _validate_category(raw: str, chart_of_accounts: List[str]) -> str:
-    """Case-insensitive match against Chart of Accounts; raises if not found."""
     normalised = {c.lower().strip(): c for c in chart_of_accounts}
     key = raw.lower().strip()
     if key not in normalised:
         logger.warning(
             "LLM returned category not in CoA: %r — attempting fuzzy fallback", raw
         )
-        # Fuzzy fallback: pick the CoA entry that shares the most words
         best = _fuzzy_match(key, normalised)
         if best:
             logger.info("Fuzzy fallback resolved to: %r", best)
