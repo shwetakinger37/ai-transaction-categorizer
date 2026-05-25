@@ -1,23 +1,3 @@
-"""
-categorization_service.py — Tiered categorization pipeline.
-
-Three tiers, tried in order:
-
-  Tier 1 — Rule Engine (zero LLM cost)
-    Check company bank rules for an exact keyword match.
-    If a rule matches AND word-overlap maps it to a CoA item → return immediately.
-    Typical confidence: 0.92–0.97. Fast, deterministic, auditable.
-
-  Tier 2 — Enriched Single LLM Call
-    Pre-fetch bank rule matches + similar historical transactions.
-    Inject them as context into a single LLM prompt.
-    If confidence ≥ 0.5 → return.
-
-  Tier 3 — Agentic Escalation  (only when Tier 2 confidence < 0.5)
-    Give the LLM tool access to explore further on its own.
-    The agentic loop runs until stop_reason == "end_turn".
-    Only available when LLM_PROVIDER=anthropic.
-"""
 from __future__ import annotations
 
 import logging
@@ -125,8 +105,6 @@ def categorize_transaction(request: CategorizationRequest) -> CategorizationResp
     )
     return tier3
 
-
-# ─── Tier 1 helper ────────────────────────────────────────────────────────────
 
 def _try_tier1(
     request: CategorizationRequest,
