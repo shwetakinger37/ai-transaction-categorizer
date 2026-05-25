@@ -1,8 +1,3 @@
-"""
-mock_data.py — Sample requests and expected outputs for manual testing & evaluation.
-No real company or PII data.
-"""
-
 CHART_OF_ACCOUNTS = [
     "Software & Subscriptions",
     "Office Supplies",
@@ -49,7 +44,6 @@ HISTORICAL_TRANSACTIONS = [
     },
 ]
 
-# ── 5 sample categorization requests ──────────────────────────────────────────
 
 SAMPLE_REQUESTS = [
     {
@@ -133,8 +127,6 @@ SAMPLE_REQUESTS = [
         "_expected_confidence_min": 0.75,
     },
 ]
-
-# ── Expected JSON outputs (for README documentation) ──────────────────────────
 
 EXPECTED_OUTPUTS = [
     {
