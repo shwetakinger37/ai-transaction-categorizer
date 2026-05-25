@@ -1,9 +1,3 @@
-"""
-tests/test_categorization.py — Unit & integration tests.
-
-Run with: python manage.py test tests
-or:        pytest tests/
-"""
 from __future__ import annotations
 
 import json
@@ -28,9 +22,7 @@ from categorizer.services.response_formatter import parse_and_format
 from categorizer.services.llm_client import extract_json_block
 
 
-# ──────────────────────────────────────────────
-# Fixtures
-# ──────────────────────────────────────────────
+
 
 CHART_OF_ACCOUNTS = [
     "Software & Subscriptions",
@@ -83,10 +75,6 @@ MOCK_LLM_RESPONSE = json.dumps({
 })
 
 
-# ──────────────────────────────────────────────
-# Schema validation tests
-# ──────────────────────────────────────────────
-
 class TestSchemaValidation(unittest.TestCase):
 
     def test_valid_request_parses(self):
@@ -124,9 +112,6 @@ class TestSchemaValidation(unittest.TestCase):
         self.assertEqual(CategorizationResponse.confidence_label_from_score(0.3), "LOW")
 
 
-# ──────────────────────────────────────────────
-# Context builder tests
-# ──────────────────────────────────────────────
 
 class TestContextBuilder(unittest.TestCase):
 
@@ -165,10 +150,6 @@ class TestContextBuilder(unittest.TestCase):
         self.assertIn("no historical data", user_prompt)
 
 
-# ──────────────────────────────────────────────
-# JSON extraction tests
-# ──────────────────────────────────────────────
-
 class TestExtractJsonBlock(unittest.TestCase):
 
     def test_plain_json(self):
@@ -188,9 +169,6 @@ class TestExtractJsonBlock(unittest.TestCase):
             extract_json_block("No JSON here at all.")
 
 
-# ──────────────────────────────────────────────
-# Response formatter tests
-# ──────────────────────────────────────────────
 
 class TestResponseFormatter(unittest.TestCase):
 
@@ -242,10 +220,6 @@ class TestResponseFormatter(unittest.TestCase):
         self.assertEqual(result.model_used, "gpt-4o-mini")
         self.assertEqual(result.provider, "openai")
 
-
-# ──────────────────────────────────────────────
-# Full pipeline integration test (LLM mocked)
-# ──────────────────────────────────────────────
 
 class TestCategorizationServiceIntegration(unittest.TestCase):
 
