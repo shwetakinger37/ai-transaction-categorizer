@@ -32,26 +32,7 @@ The response includes:
 
 ---
 
-## Project Structure
 
-```
-categorizer/
-    views.py
-    schemas.py
-    urls.py
-
-services/
-    context_builder.py
-    categorization_service.py
-    response_parser.py
-
-llm/
-    factory.py
-    openai_client.py
-    mock_client.py
-```
-
----
 
 ## Setup Instructions
 
